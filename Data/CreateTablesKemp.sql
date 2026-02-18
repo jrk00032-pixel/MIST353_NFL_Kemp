@@ -17,7 +17,16 @@ create TABLE ConferenceDivision (
         CONSTRAINT CHK_Conference CHECK (Conference IN ('AFC', 'NFC')),
     Division NVARCHAR(50) not null
         CONSTRAINT CHK_Division CHECK (Division IN ('East', 'North', 'South', 'West'))
+    CONSTRAINT UQ_ConferenceDivision UNIQUE (Conference, Division)
 );
+
+/*
+alter table ConferenceDivision
+NOCHECK CONSTRAINT CK_ConferenceNames;
+
+alter table ConferenceDivision
+CHECK CONSTRAINT CK_DivisionNames;
+*/
 
 GO
 
