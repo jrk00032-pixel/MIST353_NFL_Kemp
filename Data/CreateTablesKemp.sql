@@ -1,14 +1,7 @@
 -- Create a database for NFL app
+-- Create tables for ConferenceDivision and Team
 
--- use master;
-
--- create database MIST353_NFL_RDB_Kemp;
-
--- drop database NFL_RDB_Kemp;
-
-use MIST353_NFL_RDB_Kemp;
-
--- Create tables for first iteration
+/*
 
 create TABLE ConferenceDivision (
     ConferenceDivisionID int identity(1,1)
@@ -39,5 +32,8 @@ create table Team (
     ConferenceDivisionID int not null,
         CONSTRAINT FK_Team_ConferenceDivisionID FOREIGN KEY (ConferenceDivisionID) REFERENCES ConferenceDivision(ConferenceDivisionID)
 );
+
+
+*/
 
 

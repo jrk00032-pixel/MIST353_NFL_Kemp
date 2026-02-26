@@ -3,9 +3,11 @@
 -- Insert team data for AFC North (4 rows)
 
 
-use MIST353_NFL_RDB_Kemp;
+--use MIST353_NFL;
+
 
 /*
+
 
 Insert into dbo.ConferenceDivision (Conference, Division)
 values ('AFC', 'North'),
@@ -65,6 +67,8 @@ values ('Baltimore Ravens', 'Baltimore, MD', 'Purple, Black, Metallic Gold', 1),
 */
 
 
+
+
 Select * from dbo.ConferenceDivision;
 Select * from dbo.Team;
 
@@ -73,8 +77,11 @@ Select * from dbo.Team;
 
 -- SELECT DB_NAME() AS CurrentDatabase;
 
-/*SELECT * 
+/*
+
+SELECT * 
 FROM INFORMATION_SCHEMA.TABLES
 WHERE TABLE_NAME = 'ConferenceDivision';
+
 */
 

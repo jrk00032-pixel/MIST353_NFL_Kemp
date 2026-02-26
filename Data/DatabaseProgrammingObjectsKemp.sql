@@ -2,10 +2,7 @@
 -- 1 each for ConferenceDivision and Team tables, and 1 join query
 
 
-
-USE MIST353_NFL_RDB_Kemp;
-
-
+-- ConferenceDivision Querie
 
 
 SELECT 
@@ -14,6 +11,9 @@ SELECT
     Division
 FROM dbo.ConferenceDivision
 ORDER BY Conference, Division;
+
+
+-- TEAM Querie 
 
 
 SELECT 
@@ -27,6 +27,8 @@ FROM dbo.Team
 ORDER BY TeamName;
 
 
+-- INNER JOIN Querie
+
 
 SELECT 
     t.TeamName,
@@ -38,3 +40,23 @@ FROM dbo.Team t
 INNER JOIN dbo.ConferenceDivision cd
     ON t.ConferenceDivisionID = cd.ConferenceDivisionID
 ORDER BY cd.Conference, cd.Division, t.TeamName;
+
+
+
+-- INNER JOIN Querie with WHERE clause to filter for AFC East teams From Class Discussion
+
+SELECT TeamName, TeamColors, Conference, Division
+FROM dbo.Team t
+INNER JOIN dbo.ConferenceDivision cd
+    ON t.ConferenceDivisionID = cd.ConferenceDivisionID
+    WHERE cd.Conference = 'AFC' AND cd.Division = 'East'
+ORDER BY t.TeamName;
+
+
+/*
+create or alter procedure procGetTeamsByConferenceDivision
+    @Conference NVARCHAR(50),
+    @Division NVARCHAR(50)
+
+*/
+
