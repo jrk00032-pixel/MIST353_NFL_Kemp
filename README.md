@@ -10,4 +10,4 @@ mist353-server-kemp.database.windows.net
 
 
 AZURE SQL DATABASE NAME:
-master
+MIST353-NFL-Kemp

@@ -45,6 +45,8 @@ ORDER BY cd.Conference, cd.Division, t.TeamName;
 
 -- INNER JOIN Querie with WHERE clause to filter for AFC East teams From Class Discussion
 
+declare @myTeamName nvarchar(50) = 'Buffalo Bills';
+
 SELECT TeamName, TeamColors, Conference, Division
 FROM dbo.Team t
 INNER JOIN dbo.ConferenceDivision cd
@@ -55,8 +57,8 @@ ORDER BY t.TeamName;
 
 /*
 create or alter procedure procGetTeamsByConferenceDivision
-    @Conference NVARCHAR(50),
-    @Division NVARCHAR(50)
+    @Conference NVARCHAR(50) = null,
+    @Division NVARCHAR(50) = null
 
 */
 
