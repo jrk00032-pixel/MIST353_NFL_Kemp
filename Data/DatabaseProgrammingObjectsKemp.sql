@@ -47,7 +47,7 @@ ORDER BY cd.Conference, cd.Division, t.TeamName;
 
 -- declare @myTeamName nvarchar(50) = 'Buffalo Bills';
 
-
+/*
 
 GO;
 
@@ -103,3 +103,47 @@ BEGIN
 END
 
 GO;
+
+
+
+
+
+
+
+create login APIlogin
+WITH PASSWORD = 'Mugyboogy119!!!'
+
+create user APIuser
+FOR LOGIN APIlogin;
+
+Grant execute to APIuser;
+
+Grant select to APIuser;
+
+
+USE MIST353_NFL_Kemp;
+GO
+
+
+
+CREATE USER APIlogin FOR LOGIN APIlogin;
+GO
+
+ALTER ROLE db_datareader ADD MEMBER APIlogin;
+GO
+
+ALTER ROLE db_datawriter ADD MEMBER APIlogin;
+GO
+
+
+ALTER LOGIN APIlogin WITH PASSWORD = 'MI$T353Instructor';
+GO
+
+
+-- 1. Switch to the server-level system database
+USE master;
+GO
+
+-- 2. Reset the login password
+ALTER LOGIN APIlogin WITH PASSWORD = 'Mugyboogy119!$$';       this passwrod is correct as of 2024-06-01
+GO

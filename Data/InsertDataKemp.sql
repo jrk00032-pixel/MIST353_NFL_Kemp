@@ -3,7 +3,6 @@
 -- Insert team data for AFC North (4 rows)
 
 
---use MIST353_NFL;
 
 
 /*
