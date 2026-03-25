@@ -1,28 +1,30 @@
 from get_db_connection import get_db_connection
 
-
-
-def get_teams_by_conference_division(
-        conference: str = None,
-        division: str = None
-        ):
-    #with get_db_connection() as conn:
-
+def get_teams_by_conference_division(conference=None, division=None):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute( "{call procGetTeamsByConferenceDivision ?, ?}", (conference, division))
-    rows = cursor.fetchall()
-    conn.close()
 
-    #convert pyodbc.Row objects to dicts
-    results = [
-        {
+    query = """
+        SELECT TeamName, Conference, Division, TeamColors
+        FROM dbo.Team t
+        INNER JOIN dbo.ConferenceDivision cd
+            ON t.ConferenceDivisionID = cd.ConferenceDivisionID
+        WHERE (? IS NULL OR cd.Conference = ?)
+          AND (? IS NULL OR cd.Division = ?)
+        ORDER BY TeamName
+    """
+
+    cursor.execute(query, conference, conference, division, division)
+    rows = cursor.fetchall()
+
+    data = []
+    for row in rows:
+        data.append({
             "TeamName": row.TeamName,
             "Conference": row.Conference,
             "Division": row.Division,
             "TeamColors": row.TeamColors
-        }
-        for row in rows
-    ]
+        })
 
-    return {"data": results}
+    conn.close()
+    return {"data": data}

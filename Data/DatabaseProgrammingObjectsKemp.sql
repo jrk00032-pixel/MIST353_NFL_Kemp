@@ -77,31 +77,28 @@ GO;
 
 
 
-GO;
 
-CREATE OR ALTER PROCEDURE procGetOtherTeamsByTeam
+
+GO
+
+CREATE OR ALTER PROCEDURE procGetTeamsInSameConferenceDivisionAsSpecifiedTeam
 (
-    @TeamName NVARCHAR(100) = NULL
+    @TeamName NVARCHAR(100)
 )
 AS
 BEGIN
-    SELECT t.TeamName,
-           t.TeamColors,
+    SELECT t2.TeamName,
            cd.Conference,
            cd.Division
-    FROM dbo.Team t
+    FROM dbo.Team t1
     INNER JOIN dbo.ConferenceDivision cd
-        ON t.ConferenceDivisionID = cd.ConferenceDivisionID
-    WHERE t.ConferenceDivisionID =
-          (
-              SELECT ConferenceDivisionID
-              FROM dbo.Team
-              WHERE TeamName = ISNULL(@TeamName, TeamName)
-          )
-      AND t.TeamName <> ISNULL(@TeamName, t.TeamName)
-    ORDER BY t.TeamName;
+        ON t1.ConferenceDivisionID = cd.ConferenceDivisionID
+    INNER JOIN dbo.Team t2
+        ON t2.ConferenceDivisionID = cd.ConferenceDivisionID
+    WHERE t1.TeamName = @TeamName
+      AND t2.TeamName <> @TeamName
+    ORDER BY t2.TeamName;
 END
 
-GO;
-
+GO
 
