@@ -2,67 +2,80 @@ import streamlit as st
 from fetch_data import fetch_data
 
 def get_teams_by_conference_division_ui():
-    st.title("Get Teams by Conference and Division")
+    st.markdown("""
+        <style>
+            .tool-card {
+                background-color: #0f172a;
+                padding: 1.1rem 1.25rem 0.9rem 1.25rem;
+                border-radius: 16px;
+                border: 1px solid rgba(255,255,255,0.08);
+                margin-bottom: 1rem;
+                text-align: center;
+            .tool-title {
+                font-size: 1.6rem;
+                font-weight: 700;
+                margin-bottom: 0;
+                line-height: 1.3;
+            }
+            .tool-subtitle {
+                color: #94a3b8;
+                font-size: 0.95rem;
+                margin-bottom: 0;
+            }
+            div[data-testid="stForm"] {
+                border: none;
+                padding: 0;
+                background: transparent;
+            }
+            div[data-testid="stSuccess"] {
+                margin-top: 0.75rem;
+                margin-bottom: 0.75rem;
+            }
+        </style>
+    """, unsafe_allow_html=True)
 
-    conference = st.selectbox("Select Conference", ["AFC", "NFC"])
-    division = st.selectbox("Select Division", ["North", "South", "East", "West"])
+    left_space, center_col, right_space = st.columns([1.15, 2.2, 1.15])
 
-    if st.button("Fetch Conference/Division Teams"):
-        input_params = {
-            "conference": conference,
-            "division": division
-        }
+    with center_col:
+        st.markdown("""
+            <div class="tool-card">
+                <div class="tool-title">Get Teams by Conference and Division</div>
+            </div>
+        """, unsafe_allow_html=True)
 
-        df = fetch_data("teams", input_params)
+        with st.form("teams_by_division_form"):
+            conference_col, division_col = st.columns(2)
 
-        if df is not None and not df.empty:
-            st.success(f"Found {len(df)} teams")
-            st.subheader(f"Teams in {conference} {division}")
-            st.dataframe(df, use_container_width=True, hide_index=True)
+            with conference_col:
+                conference = st.selectbox("Conference", ["AFC", "NFC"])
 
-            for _, row in df.iterrows():
-                colors = row["TeamColors"].split(",")
+            with division_col:
+                division = st.selectbox("Division", ["North", "South", "East", "West"])
 
-                color_boxes = ""
-                for c in colors:
-                    raw_color = c.strip().lower()
+            submitted = st.form_submit_button("Search", use_container_width=True)
 
-                    color_map = {
-                        "purple": "#4B0082",
-                        "black": "black",
-                        "white": "white",
-                        "orange": "orange",
-                        "brown": "brown",
-                        "red": "red",
-                        "gold": "gold",
-                        "metallic gold": "#D4AF37",
-                        "royal blue": "#4169E1",
-                        "navy blue": "#000080",
-                        "deep steel blue": "#4682B4",
-                        "battle red": "#7C0A02",
-                        "liberty white": "#F5F5F5",
-                        "panther blue": "#0085CA",
-                        "titans navy": "#0C2340",
-                        "titans light blue": "#4B92DB",
-                        "powder blue": "#B0E0E6",
-                        "midnight green": "#004953",
-                        "action green": "#00FF00",
-                        "wolf grey": "#8C92AC",
-                        "scarlet red": "#FF2400"
-                    }
+        if submitted:
+            input_params = {
+                "conference": conference,
+                "division": division
+            }
 
-                    color = color_map.get(raw_color, raw_color)
-                    color_boxes += f"<span style='display:inline-block;width:20px;height:20px;background:{color};margin-right:5px;'></span>"
+            df = fetch_data("teams", input_params)
 
-                st.markdown(
-                    f"""
-                    <div style="margin-bottom:10px;">
-                        <strong>{row['TeamName']}</strong><br>
-                        {color_boxes}
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-)
+            if df is not None and not df.empty:
+                df = df.rename(columns={
+                    "TeamName": "Team",
+                    "TeamColors": "Colors"
+                }).sort_values(by="Team")
 
-        else:
-            st.info(f"No teams found for {conference} {division}.")
+                st.success(f"Found {len(df)} teams")
+                st.subheader(f"Teams in {conference} {division}")
+
+                st.dataframe(
+                    df[["Team", "Colors"]],
+                    use_container_width=True,
+                    hide_index=True
+                )
+
+            else:
+                st.info(f"No teams found for {conference} {division}.")

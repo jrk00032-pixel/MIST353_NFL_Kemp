@@ -2,8 +2,20 @@ import streamlit as st
 from get_teams_by_conference_division_ui import get_teams_by_conference_division_ui
 from get_teams_in_same_conference_division_as_specified_team_ui import get_teams_in_same_conference_division_as_specified_team_ui
 
-st.title("NFL Playoffs App")
-st.write("Welcome to the NFL Playoffs App! Use the sidebar to navigate through different features and explore information about NFL teams, players, and playoff matchups.")
+
+import streamlit as st
+
+st.set_page_config(layout="centered")
+
+st.markdown("""
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+        <h1 style="margin-bottom: 0.25rem; font-weight: 700;">NFL Playoffs App</h1>
+        <p style="color: #94a3b8; margin-top: 0; font-size: 0.95rem;">
+            NFL teams made simple.
+        </p>
+    </div>
+            """, unsafe_allow_html=True)
+
 
 with st.sidebar:
     st.title("NFL Playoff Functionalities")
