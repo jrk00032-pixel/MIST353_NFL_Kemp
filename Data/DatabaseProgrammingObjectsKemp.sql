@@ -102,3 +102,23 @@ END
 
 GO
 
+*/
+
+GO
+
+create or alter PROCEDURE procValidateUser
+(
+    @Email NVARCHAR(100),
+    @PasswordHash NVARCHAR(200)
+)
+AS
+BEGIN
+    SELECT AppUserID, FirstName + ' ' + LastName AS FullName, UserRole
+    FROM dbo.AppUser
+    WHERE Email = @Email
+      AND PasswordHash = Convert(VARBINARY(200), @PasswordHash, 1);
+END
+
+
+-- execute procValidateUser @Email = 'tom.brady@example.com', @PasswordHash = 0x01;
+-- select * from AppUser;
