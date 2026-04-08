@@ -1,9 +1,10 @@
 import streamlit as st
 from get_teams_by_conference_division_ui import get_teams_by_conference_division_ui
 from get_teams_in_same_conference_division_as_specified_team_ui import get_teams_in_same_conference_division_as_specified_team_ui
+from validate_user_ui import validate_user_ui
+from get_teams_for_specified_fan_ui import get_teams_for_specified_fan_ui
 
 
-import streamlit as st
 
 st.set_page_config(layout="centered")
 
@@ -14,22 +15,28 @@ st.markdown("""
             NFL teams made simple.
         </p>
     </div>
-            """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
+st.sidebar.title("NFL Playoff Functionalities")
 
-with st.sidebar:
-    st.title("NFL Playoff Functionalities")
+selected_functionality = st.sidebar.selectbox(
+    "Select a functionality:",
+    [
+        "Get Teams by Conference and Division",
+        "Get Teams in Same Conference and Division",
+        "Validate User Login",
+        "Get Teams for Specified Fan"
+    ]
+)
 
-    api_endpoint = st.selectbox(
-        "Select a functionality:",
-        [
-            "Get Teams by Conference and Division",
-            "Get Teams in Same Conference and Division as Specified Team"
-        ]
-    )
-
-if api_endpoint == "Get Teams by Conference and Division":
+if selected_functionality == "Get Teams by Conference and Division":
     get_teams_by_conference_division_ui()
 
-elif api_endpoint == "Get Teams in Same Conference and Division as Specified Team":
+elif selected_functionality == "Get Teams in Same Conference and Division":
     get_teams_in_same_conference_division_as_specified_team_ui()
+
+elif selected_functionality == "Validate User Login":
+    validate_user_ui()
+
+elif selected_functionality == "Get Teams for Specified Fan":
+    get_teams_for_specified_fan_ui()

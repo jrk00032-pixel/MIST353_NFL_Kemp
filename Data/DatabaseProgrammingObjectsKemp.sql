@@ -4,6 +4,7 @@
 
 -- ConferenceDivision Querie
 
+/*
 
 SELECT 
     ConferenceDivisionID,
@@ -104,6 +105,8 @@ GO
 
 */
 
+
+/*
 GO
 
 create or alter PROCEDURE procValidateUser
@@ -122,3 +125,30 @@ END
 
 -- execute procValidateUser @Email = 'tom.brady@example.com', @PasswordHash = 0x01;
 -- select * from AppUser;
+
+
+
+
+
+/*
+GO
+
+
+create or alter proc procGetTeamsForSpecifiedFan
+(
+    @NFLFanID INT
+)
+AS
+BEGIN
+    SELECT t.TeamName, cd.Conference, cd.Division, t.TeamColors
+    FROM NFLFan F
+    INNER JOIN dbo.Team t
+        ON F.NFLFanID = t.TeamID
+    INNER JOIN dbo.ConferenceDivision cd
+        ON t.ConferenceDivisionID = cd.ConferenceDivisionID
+    WHERE f.NFLFanID = @NFLFanID    
+
+END
+
+-- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
+
