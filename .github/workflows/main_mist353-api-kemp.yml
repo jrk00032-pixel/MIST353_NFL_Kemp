@@ -11,8 +11,8 @@ on:
     paths:
       - 'API/**'
       - 'requirements.txt'
-
-  workflow_dispatch:
+      
+    workflow_dispatch:
 
 jobs:
   build:
