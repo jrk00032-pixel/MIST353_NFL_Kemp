@@ -12,7 +12,7 @@ on:
       - 'API/**'
       - 'requirements.txt'
       
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
           name: python-app
           path: |
               API/
-            !.venv/
+              !.venv/
             
 
       # 🚫 Opting Out of Oryx Build
