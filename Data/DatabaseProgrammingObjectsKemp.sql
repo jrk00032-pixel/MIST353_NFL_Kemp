@@ -152,3 +152,76 @@ END
 
 -- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
 
+EXEC procValidateUser 'tom.brady@example.com', 'your_password_hash'
+
+
+
+
+DROP PROCEDURE IF EXISTS procGetTeamsForSpecifiedFan;
+
+
+
+
+
+create or alter procedure procGetTeamsByFanID
+(
+    @NFLFanID INT
+)
+AS
+BEGIN
+    SELECT t.TeamName, cd.Conference, cd.Division, t.TeamColors, ft.PrimaryTeam
+    FROM FanTeam ft
+    INNER JOIN dbo.Team t
+        ON ft.TeamID = t.TeamID
+    INNER JOIN dbo.ConferenceDivision cd
+        ON t.ConferenceDivisionID = cd.ConferenceDivisionID
+    WHERE ft.NFLFanID = @NFLFanID   
+
+END
+
+
+-- execute procGetTeamsByFanID @NFLFanID = 1;
+-- execute procGetTeamsByFanID @NFLFanID = 2;
+
+EXEC procGetTeamsByFanID @NFLFanID = 1;
+
+
+
+USE [MIST353-NFL-Kemp];
+GO
+
+GRANT EXECUTE ON dbo.procGetTeamsByFanID TO Aplogin;
+GO
+
+
+USE [MIST353-NFL-Kemp];
+GO
+
+CREATE USER Aplogin FOR LOGIN Aplogin;
+GO
+
+GRANT EXECUTE ON dbo.procGetTeamsByFanID TO Aplogin;
+GO
+
+SELECT SUSER_SNAME() AS CurrentLogin;
+SELECT USER_NAME() AS CurrentDatabaseUser;
+
+USE [MIST353-NFL-Kemp];
+GO
+GRANT EXECUTE ON dbo.procGetTeamsByFanID TO Aplogin;
+GO
+
+SELECT name FROM sys.server_principals WHERE name = 'Aplogin';
+
+
+USE [MIST353-NFL-Kemp];
+GO
+CREATE USER Aplogin FOR LOGIN Aplogin;
+GO
+GRANT EXECUTE ON dbo.procGetTeamsByFanID TO Aplogin;
+GO
+
+SELECT SUSER_SNAME() AS LoginName, USER_NAME() AS DatabaseUser;
+
+-- Check if Aplogin user already exists in the database
+SELECT name FROM sys.database_principals WHERE name = 'Aplogin';

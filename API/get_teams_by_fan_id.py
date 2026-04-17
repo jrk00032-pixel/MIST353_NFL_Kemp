@@ -1,12 +1,12 @@
 from get_db_connection import get_db_connection
 
-def get_teams_by_conference_division(conference=None, division=None):
+def get_teams_by_fan_id(nfl_fan_id: int):
     conn = get_db_connection()
     cursor = conn.cursor(as_dict=True)
 
     cursor.execute(
-        "EXEC dbo.procGetTeamsByConferenceDivision %s, %s",
-        (conference, division)
+        "EXEC dbo.procGetTeamsByFanID %s",
+        (nfl_fan_id,)
     )
 
     rows = cursor.fetchall()
@@ -14,14 +14,15 @@ def get_teams_by_conference_division(conference=None, division=None):
     cursor.close()
     conn.close()
 
-    data = [
+    results = [
         {
             "TeamName": row["TeamName"],
             "Conference": row["Conference"],
             "Division": row["Division"],
-            "TeamColors": row["TeamColors"]
+            "TeamColors": row["TeamColors"],
+            "PrimaryTeam": row["PrimaryTeam"]
         }
         for row in rows
     ]
 
-    return {"data": data}
+    return {"data": results}

@@ -1,5 +1,5 @@
 import os
-import pyodbc
+import pymssql
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,8 +10,10 @@ def get_db_connection():
     username = os.getenv('DB_LOGIN')
     password = os.getenv('DB_PASSWORD')
 
-    connection_string = f"Driver={{ODBC Driver 18 for SQL Server}};Server={server};Database={database};UID={username};PWD={password};"
-    return pyodbc.connect(connection_string)
 
-import pyodbc
-print(pyodbc.drivers())
+
+
+    #connection_string = f"Driver={{ODBC Driver 18 for SQL Server}};Server={server};Database={database};UID={username};PWD={password};"
+
+
+    return pymssql.connect(server=server, user=username, password=password, database=database, port=1433, tds_version='7.4')
