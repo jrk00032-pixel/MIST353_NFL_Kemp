@@ -8,7 +8,7 @@ def get_teams_for_specified_fan_ui():
 
     input_parameters = {}
     fan_id = st.text_input("Fan ID", value=st.session_state.app_user_id, disabled=True)
-    input_parameters["fan_id"] = fan_id
+    input_parameters["nfl_fan_id"] = fan_id
 
     df = fetch_data("get_teams_for_specified_fan/", input_parameters)
 
