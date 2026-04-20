@@ -2,7 +2,7 @@ import streamlit as st
 from get_teams_by_conference_division_ui import get_teams_by_conference_division_ui
 from get_teams_in_same_conference_division_as_specified_team_ui import get_teams_in_same_conference_division_as_specified_team_ui
 from validate_user_ui import validate_user_ui
-from get_teams_by_fan_id_ui import get_teams_by_fan_id_ui
+from UI.get_teams_for_specified_fan_ui import get_teams_for_specified_fan_ui
 
 
 
@@ -25,7 +25,7 @@ api_endpoint = st.sidebar.selectbox(
         "Get Teams by Conference and Division",
         "Get Teams in Same Conference and Division",
         "Validate User Login",
-        "Get Teams by Fan ID"
+        "Get Teams for Specified Fan"
     ]
 )
 
@@ -38,5 +38,5 @@ elif api_endpoint == "Get Teams in Same Conference and Division":
 elif api_endpoint == "Validate User Login":
     validate_user_ui()
 
-elif api_endpoint == "Get Teams by Fan ID":
-    get_teams_by_fan_id_ui() 
+elif api_endpoint == "Get Teams for Specified Fan":
+    get_teams_for_specified_fan_ui() 

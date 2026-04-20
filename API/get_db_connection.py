@@ -16,4 +16,4 @@ def get_db_connection():
     #connection_string = f"Driver={{ODBC Driver 18 for SQL Server}};Server={server};Database={database};UID={username};PWD={password};"
 
 
-    return pymssql.connect(server=server, user=username, password=password, database=database, port=1433, tds_version='7.4')
+    return pymssql.connect(server=server, user=username, password=password, database=database, port=1433) #tds_version='7.4'

@@ -134,25 +134,6 @@ END
 GO
 
 
-create or alter proc procGetTeamsForSpecifiedFan
-(
-    @NFLFanID INT
-)
-AS
-BEGIN
-    SELECT t.TeamName, cd.Conference, cd.Division, t.TeamColors
-    FROM NFLFan F
-    INNER JOIN dbo.Team t
-        ON F.NFLFanID = t.TeamID
-    INNER JOIN dbo.ConferenceDivision cd
-        ON t.ConferenceDivisionID = cd.ConferenceDivisionID
-    WHERE f.NFLFanID = @NFLFanID    
-
-END
-
--- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
-
-EXEC procValidateUser 'tom.brady@example.com', 'your_password_hash'
 
 
 
@@ -160,10 +141,16 @@ EXEC procValidateUser 'tom.brady@example.com', 'your_password_hash'
 DROP PROCEDURE IF EXISTS procGetTeamsForSpecifiedFan;
 
 
+SELECT DB_NAME() AS CurrentDatabase;
 
+SELECT name
+FROM sys.procedures
+WHERE name LIKE '%Fan%';
 
+IF OBJECT_ID('procGetTeamsByFanID', 'P') IS NOT NULL
+    DROP PROCEDURE procGetTeamsByFanID;
 
-create or alter procedure procGetTeamsByFanID
+create or alter procedure procGetTeamsForSpecifiedFan
 (
     @NFLFanID INT
 )
@@ -180,8 +167,8 @@ BEGIN
 END
 
 
--- execute procGetTeamsByFanID @NFLFanID = 1;
--- execute procGetTeamsByFanID @NFLFanID = 2;
+-- execute procGetTeamsForSpecifiedFan @NFLFanID = 1;
+-- execute procGetTeamsForSpecifiedFan @NFLFanID = 2;
 
 EXEC procGetTeamsByFanID @NFLFanID = 1;
 

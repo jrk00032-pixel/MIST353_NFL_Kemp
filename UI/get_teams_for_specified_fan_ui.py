@@ -1,7 +1,7 @@
 import streamlit as st
 from fetch_data import fetch_data
 
-def get_teams_by_fan_id_ui():
+def get_teams_for_specified_fan_ui():
     st.header("Fan's Favorite Teams")
 
     app_user_id = st.session_state.get("app_user_id")
@@ -16,7 +16,7 @@ def get_teams_by_fan_id_ui():
 
     st.text_input("Fan ID", value=str(app_user_id), disabled=True)
 
-    df = fetch_data("get_teams_by_fan_id/", input_parameters)
+    df = fetch_data("get_teams_for_specified_fan/", input_parameters)
 
     if df is not None and not df.empty:
         st.dataframe(df, use_container_width=True, hide_index=True)

@@ -1,11 +1,11 @@
 from get_db_connection import get_db_connection
 
-def get_teams_by_fan_id(nfl_fan_id: int):
+def get_teams_for_specified_fan(nfl_fan_id: int):
     conn = get_db_connection()
     cursor = conn.cursor(as_dict=True)
 
     cursor.execute(
-        "EXEC dbo.procGetTeamsByFanID %s",
+        "EXEC dbo.procGetTeamsForSpecifiedFan %s",
         (nfl_fan_id,)
     )
 
