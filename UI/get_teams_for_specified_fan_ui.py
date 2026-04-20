@@ -2,19 +2,13 @@ import streamlit as st
 from fetch_data import fetch_data
 
 def get_teams_for_specified_fan_ui():
-    st.header("Fan's Favorite Teams")
 
-    app_user_id = st.session_state.get("app_user_id")
+    fan_name = st.session_state.app_user_fullname
+    st.header(f"Teams associated with {fan_name}")
 
-    if app_user_id is None or app_user_id == "":
-        st.warning("No fan ID found in session. Please log in first.")
-        return
-
-    input_parameters = {
-        "nfl_fan_id": int(app_user_id)
-    }
-
-    st.text_input("Fan ID", value=str(app_user_id), disabled=True)
+    input_parameters = {}
+    fan_id = st.text_input("Fan ID", value=st.session_state.app_user_id, disabled=True)
+    input_parameters["fan_id"] = fan_id
 
     df = fetch_data("get_teams_for_specified_fan/", input_parameters)
 

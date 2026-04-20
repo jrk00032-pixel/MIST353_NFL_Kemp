@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import pandas as pd
 
-FASTAPI_url = "https://mist353-api-kemp.azurewebsites.net" 
+FASTAPI_url = "https://mist353-api-kemp.azurewebsites.net" #"http://localhost:8000"
 
 def fetch_data(endpoint: str, input_params: dict, method: str = "GET"):
     try:
