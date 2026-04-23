@@ -212,3 +212,84 @@ SELECT SUSER_SNAME() AS LoginName, USER_NAME() AS DatabaseUser;
 
 -- Check if Aplogin user already exists in the database
 SELECT name FROM sys.database_principals WHERE name = 'Aplogin';
+
+
+
+go 
+
+
+create or alter procedure procSceduleGame
+(
+    @HomeTeamID INT,
+    @AwayTeamID INT,
+    @GameRound NVARCHAR(50),
+    @GameDate DATE,
+    @GameStartTime TIME,
+    @StadiumID INT,
+    @NFLAdminID INT
+)
+AS 
+BEGIN
+    -- store the NFLAdminID in context so that the trigger can access it when inserting into AdminChangesTracker
+
+    declare @context VARBINARY(128) = cast(@NFLAdminID as VARBINARY(128));
+    SET CONTEXT_INFO @context;
+
+    INSERT INTO Game (HomeTeamID, AwayTeamID, GameRound, GameDate, GameStartTime, StadiumID)
+    VALUES (@HomeTeamID, @AwayTeamID, @GameRound, @GameDate, @GameStartTime, @StadiumID);
+END
+
+
+gameround 
+
+
+
+
+
+
+
+-- trigger to track changes made by the Admin to the Game table
+
+
+create or alter trigger trgTrackChangesOnSchedulingGame
+on Game
+after insert
+as
+BEGIN
+    declare @NFLAdminID INT;
+    declare @GameID INT;
+    declare @ChangeType NVARCHAR(50);
+    declare @ChangeDescription NVARCHAR(500);
+    declare @GameRound NVARCHAR(50);
+    declare @GameDate DATE;
+    declare @GameStartTime TIME;
+    declare @HomeTeamID INT;
+    declare @AwayTeamID INT;
+    declare @HomeTeamName NVARCHAR(50);
+    declare @AwayTeamName NVARCHAR(50);
+    declare @StadiumID INT;
+    declare @StadiumName NVARCHAR(100);
+    declare @AdminFullName NVARCHAR(100);
+
+    -- get the NFLAdminID from context
+    set @NFLAdminID = convert(int, convert(binary(4),context_info()));
+
+    -- get the GameID of the newly inserted game
+    select @GameID = GameID, @GameRound = GameRound, @GameDate = GameDate, @GameStartTime = GameStartTime,
+        @HomeTeamID = HomeTeamID, @AwayTeamID = AwayTeamID, @StadiumID = StadiumID
+    from inserted;
+    select @HomeTeamName = TeamName from Team where TeamID = @HomeTeamID;
+    select @AwayTeamName = TeamName from Team where TeamID = @AwayTeamID;
+    select @StadiumName = StadiumName from Stadium where StadiumID = @StadiumID;
+    select @AdminFullName = Firstname + ' ' + Lastname from AppUser where AppUserID = @NFLAdminID;
+
+    set @ChangeType = 'Insert';
+    set @ChangeDescription = @AdminFullName + ' scheduled a new game with GameID ' + cast(@GameID as NVARCHAR(50))
+        + ' at ' + @HomeTeamName + ' vs ' + @AwayTeamName + ' on ' + cast(@GameDate as NVARCHAR(50))
+        + ' at ' + cast(@GameStartTime as NVARCHAR(50)) + ' in stadium ' + @StadiumName
+        + '. Game round: ' + @GameRound;
+
+    insert into AdminChangesTracker (NFLAdminID, GameID, ChangeType, ChangeDescription)
+    values (@NFLAdminID, @GameID, @ChangeType, @ChangeDescription);
+
+    END
