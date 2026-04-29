@@ -1,10 +1,7 @@
-
-
 from get_db_connection import get_db_connection
 
 import os
 
-#import pyodbc
 import pymssql
 
 from dotenv import load_dotenv

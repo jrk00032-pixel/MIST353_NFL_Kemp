@@ -7,7 +7,11 @@ FASTAPI_url = "https://mist353-api-kemp.azurewebsites.net" #"http://localhost:80
 def fetch_data(endpoint: str, input_params: dict, method: str = "GET"):
     try:
         if method == "GET":
-            response = requests.get(f"{FASTAPI_url}/{endpoint}", params=input_params)
+            url = f"{FASTAPI_url.rstrip('/')}/{endpoint.lstrip('/')}"
+
+            response = requests.post(url, params=input_params)
+        elif method == "POST":
+            response = requests.post(f"{FASTAPI_url}/{endpoint}", json=input_params)
 
             if response.status_code == 200:
                 payload = response.json()
@@ -36,3 +40,14 @@ def fetch_data(endpoint: str, input_params: dict, method: str = "GET"):
     except Exception as e:
         st.error(f"Error: {e}")
         return pd.DataFrame()
+    
+
+def post_data(endpoint: str, input_params: dict, method: str = "POST") -> dict:
+        if method == "POST":
+            response = requests.post(f"{FASTAPI_url}/{endpoint}", params=input_params)
+
+            if response.status_code == 200:
+                return response.json()
+            else:
+                st.error(f"Error posting data: {response.status_code} - {response.text}")
+                return {"status_message": f"Error posting data: {response.status_code}"}

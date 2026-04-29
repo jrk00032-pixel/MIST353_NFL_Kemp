@@ -1,15 +1,3 @@
--- Create a database for NFL app
--- Create tables for ConferenceDivision and Team
-
-/* Drop tables if they already exist 
-if(OBJECT_ID() IS NOT NULL)
-    DROP TABLE Team;
-
-
-*/
-
-
-
 if(OBJECT_ID('AdminChangesTracker') is not null)
     drop table AdminChangesTracker;
 if(OBJECT_ID('TeamStadium') is not null)
@@ -32,101 +20,78 @@ if(OBJECT_ID('NFLFan') is not null)
 if(OBJECT_ID('AppUser') is not null)
     drop table AppUser;
 
+go
 
-
-
-
--- create tables for First iteration
-
-create TABLE ConferenceDivision (
-    ConferenceDivisionID int identity(1,1)
-        CONSTRAINT PK_ConferenceDivisionID PRIMARY KEY,
-    Conference NVARCHAR(50) not null,
-        CONSTRAINT CHK_Conference CHECK (Conference IN ('AFC', 'NFC')),
-    Division NVARCHAR(50) not null
-        CONSTRAINT CHK_Division CHECK (Division IN ('East', 'North', 'South', 'West'))
-    CONSTRAINT UQ_ConferenceDivision UNIQUE (Conference, Division)
+create TABLE ConferenceDivision ( 
+    ConferenceDivisionID INT identity(1,1) 
+        constraint PK_ConferenceDivision PRIMARY KEY,
+    Conference NVARCHAR(50) NOT NULL
+        constraint CK_ConferenceNames CHECK (Conference IN ('AFC', 'NFC')),
+    Division NVARCHAR(50) NOT NULL
+        constraint CK_DivisionNames CHECK (Division IN ('East', 'North', 'South', 'West')),
+    constraint UK_ConferenceDivision UNIQUE (Conference, Division)
 );
 
-/*
-alter table ConferenceDivision
-NOCHECK CONSTRAINT CK_ConferenceNames;
+go
 
-alter table ConferenceDivision
-CHECK CONSTRAINT CK_DivisionNames;
-*/
-
-GO
-
-create table Team (
-    TeamID int identity(1,1)
-        CONSTRAINT PK_TeamID PRIMARY KEY,
-    TeamName NVARCHAR(50) not null,
-    TeamCityState NVARCHAR(50) not null,
-    TeamColors NVARCHAR(50) not null,
-    ConferenceDivisionID int not null,
-        CONSTRAINT FK_Team_ConferenceDivisionID FOREIGN KEY (ConferenceDivisionID) REFERENCES ConferenceDivision(ConferenceDivisionID)
-);
-
-
-
-
--- create tables for second iteration
-GO
-
-create table AppUser (
-    AppUserID int identity(1,1)
-        CONSTRAINT PK_AppUserID PRIMARY KEY,
-    FirstName NVARCHAR(50) not null,
-    LastName NVARCHAR(50) not null,
-    Email NVARCHAR(100) not null
-        CONSTRAINT UQ_AppUser_Email UNIQUE,
-
-    PasswordHash VARBINARY(200) not null,
-    Phone NVARCHAR(50) null,
-    UserRole NVARCHAR(50) not null
-        CONSTRAINT CHK_UserRole CHECK (UserRole IN (N'NFLAdmin', N'NFLFan'))
-);
-
-
-GO
-
-create table NFLFan(
-    NFLFanID int
-        CONSTRAINT PK_NFLFanID PRIMARY KEY
-        CONSTRAINT FK_NFLFan_AppUserID FOREIGN KEY REFERENCES AppUser(AppUserID)
-
+create TABLE Team ( 
+    TeamID INT identity(1,1) 
+        constraint PK_Team PRIMARY KEY,
+    TeamName NVARCHAR(50) NOT NULL,
+    TeamCityState NVARCHAR(50) NOT NULL,
+    TeamColors NVARCHAR(100) NOT NULL,
+    ConferenceDivisionID INT NOT NULL
+        constraint FK_Team_ConferenceDivision FOREIGN KEY REFERENCES ConferenceDivision(ConferenceDivisionID)
 );
 
 GO
 
-create table NFLAdmin(
-    NFLAdminID int
-        CONSTRAINT PK_NFLAdminID PRIMARY KEY
-        CONSTRAINT FK_NFLAdmin_AppUserID FOREIGN KEY REFERENCES AppUser(AppUserID)
-
+CREATE TABLE AppUser (
+    AppUserID       INT IDENTITY(1,1) 
+        CONSTRAINT PK_AppUser PRIMARY KEY,
+    Firstname        NVARCHAR(50)  NOT NULL,
+    Lastname        NVARCHAR(50)  NOT NULL,
+    Email           NVARCHAR(100)  NOT NULL 
+        CONSTRAINT UK_AppUser_Email UNIQUE,
+    PhoneNumber     NVARCHAR(20)   NULL,
+    PasswordHash    VARBINARY(256)  NOT NULL,
+    UserRole        NVARCHAR(20)   NOT NULL
+        CONSTRAINT CK_AppUser_UserRole CHECK (UserRole IN (N'NFLFan', N'NFLAdmin'))
 );
 
 GO
 
-create table FanTeam(
-    FanTeamID int identity(1,1)
-        CONSTRAINT PK_FanTeamID PRIMARY KEY,
-    NFLFanID int not null
-        CONSTRAINT FK_FanTeam_NFLFanID FOREIGN KEY REFERENCES NFLFan(NFLFanID),
-    TeamID int not null
-        CONSTRAINT FK_FanTeam_TeamID 
-            FOREIGN KEY REFERENCES Team(TeamID),
-        CONSTRAINT UQ_FanTeam UNIQUE (NFLFanID, TeamID),
-    PrimaryTeam BIT not null  
+CREATE TABLE NFLFan (
+    NFLFanID INT CONSTRAINT PK_NFLFan PRIMARY KEY,
+    CONSTRAINT FK_NFLFan_AppUser FOREIGN KEY (NFLFanID)
+        REFERENCES AppUser(AppUserID) ON DELETE CASCADE
 );
 
 GO
 
+CREATE TABLE NFLAdmin (
+    NFLAdminID INT CONSTRAINT PK_NFLAdmin PRIMARY KEY,
+    CONSTRAINT FK_NFLAdmin_AppUser FOREIGN KEY (NFLAdminID)
+        REFERENCES AppUser(AppUserID) ON DELETE CASCADE
+);
 
+GO
+
+CREATE TABLE FanTeam (
+    FanTeamID INT IDENTITY(1,1) 
+        constraint PK_FanTeam PRIMARY KEY,
+    TeamID INT NOT NULL 
+        constraint FK_FanTeam_Team FOREIGN KEY REFERENCES Team(TeamID) ON DELETE CASCADE,
+    NFLFanID INT NOT NULL
+        constraint FK_FanTeam_NFLFan FOREIGN KEY REFERENCES NFLFan(NFLFanID) ON DELETE CASCADE,
+    constraint UK_FanTeam UNIQUE (TeamID, NFLFanID),
+    PrimaryTeam BIT NOT NULL
+);
+
+go
 
 create table Stadium (
-    StadiumID INT identity(1,1)
+    StadiumID INT identity(1,1) 
         constraint PK_Stadium PRIMARY KEY,
     StadiumName NVARCHAR(100) NOT NULL,
     StadiumCityState NVARCHAR(50) NOT NULL,
@@ -135,11 +100,10 @@ create table Stadium (
 
 go
 
-
 create table TeamStadium (
-    TeamStadiumID INT identity(1,1)
+    TeamStadiumID INT identity(1,1) 
         constraint PK_TeamStadium PRIMARY KEY,
-    TeamID INT NOT NULL
+    TeamID INT NOT NULL 
         constraint FK_TeamStadium_Team FOREIGN KEY REFERENCES Team(TeamID),
     StadiumID INT NOT NULL
         constraint FK_TeamStadium_Stadium FOREIGN KEY REFERENCES Stadium(StadiumID),
@@ -150,15 +114,14 @@ create table TeamStadium (
 
 go
 
-
 create table Game (
-    GameID INT identity(1,1)
+    GameID INT identity(1,1) 
         constraint PK_Game PRIMARY KEY,
     GameRound NVARCHAR(50) NOT NULL
         constraint CK_GameRound CHECK (GameRound IN ('Wild Card', 'Divisional', 'Conference', 'Super Bowl')),
     GameDate DATE NOT NULL,
     GameStartTime TIME NOT NULL,
-    HomeTeamID INT NOT NULL
+    HomeTeamID INT NOT NULL 
         constraint FK_Game_HomeTeam FOREIGN KEY REFERENCES Team(TeamID),
     AwayTeamID INT NOT NULL
         constraint FK_Game_AwayTeam FOREIGN KEY REFERENCES Team(TeamID),
@@ -172,10 +135,10 @@ create table Game (
     constraint UK_Game UNIQUE (HomeTeamID, AwayTeamID, GameDate)
 );
 
-
+go
 
 create table AdminChangesTracker (
-    AdminChangesTrackerID INT identity(1,1)
+    AdminChangesTrackerID INT identity(1,1) 
         constraint PK_AdminChangesTracker PRIMARY KEY,
     NFLAdminID INT NOT NULL
         constraint FK_AdminChangesTracker_NFLAdmin FOREIGN KEY REFERENCES NFLAdmin(NFLAdminID),
@@ -186,13 +149,3 @@ create table AdminChangesTracker (
         constraint CK_AdminChangesTracker_ChangeType CHECK (ChangeType IN (N'Insert', N'Update', N'Delete')),
     ChangeDescription NVARCHAR(500) NOT NULL
 );
-
-
-
-SELECT DB_NAME() AS CurrentDatabase;
-GO
-
-SELECT TABLE_SCHEMA, TABLE_NAME
-FROM INFORMATION_SCHEMA.TABLES
-WHERE TABLE_NAME = 'Team';
-GO

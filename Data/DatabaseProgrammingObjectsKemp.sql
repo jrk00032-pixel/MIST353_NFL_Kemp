@@ -240,7 +240,21 @@ BEGIN
 END
 
 
-gameround 
+execute procScheduleGame
+    @HomeTeamID = 17, 
+    @AwayTeamID = 19, 
+    @GameRound = 'Wild Card', 
+    @GameDate = '2026-01-10', 
+    @GameStartTime = '20:00', 
+    @StadiumID = 17, 
+    @NFLAdminID = 6;
+
+    delete from Game where GameID = 12;
+
+    select * from Game;
+
+
+
 
 
 
@@ -293,3 +307,127 @@ BEGIN
     values (@NFLAdminID, @GameID, @ChangeType, @ChangeDescription);
 
     END
+
+
+
+
+select * from Game order by GameID desc;
+
+delete from Game where GameID = 11;
+
+
+
+
+
+
+
+
+GO
+
+CREATE OR ALTER PROCEDURE procEnterScores
+(
+    @GameID INT,
+    @HomeTeamScore INT,
+    @AwayTeamScore INT,
+    @NFLAdminID INT
+)
+AS
+BEGIN
+    DECLARE @context VARBINARY(128) = CAST(@NFLAdminID AS VARBINARY(128));
+    SET CONTEXT_INFO @context;
+
+    UPDATE Game
+    SET HomeTeamScore = @HomeTeamScore,
+        AwayTeamScore = @AwayTeamScore,
+        WinningTeamID = CASE
+            WHEN @HomeTeamScore > @AwayTeamScore THEN HomeTeamID
+            WHEN @AwayTeamScore > @HomeTeamScore THEN AwayTeamID
+            ELSE NULL
+        END
+    WHERE GameID = @GameID;
+END
+
+GO
+
+CREATE OR ALTER TRIGGER trgTrackChangesOnEnteringScores
+ON Game
+AFTER UPDATE
+AS
+BEGIN
+    DECLARE @NFLAdminID INT;
+
+    SET @NFLAdminID = CONVERT(INT, CONVERT(BINARY(4), CONTEXT_INFO()));
+
+    INSERT INTO AdminChangesTracker
+    (
+        NFLAdminID,
+        GameID,
+        ChangeType,
+        ChangeDescription
+    )
+    SELECT
+        @NFLAdminID,
+        i.GameID,
+        'Update',
+        au.FirstName + ' ' + au.LastName
+            + ' updated scores for GameID ' + CAST(i.GameID AS NVARCHAR(50))
+            + ': Home=' + ht.TeamName + ' (' + CAST(i.HomeTeamScore AS NVARCHAR(50)) + ')'
+            + ', Away=' + at.TeamName + ' (' + CAST(i.AwayTeamScore AS NVARCHAR(50)) + ')'
+            + ', WinningTeam=' + wt.TeamName
+    FROM inserted i
+    INNER JOIN Team ht
+        ON i.HomeTeamID = ht.TeamID
+    INNER JOIN Team at
+        ON i.AwayTeamID = at.TeamID
+    INNER JOIN Team wt
+        ON i.WinningTeamID = wt.TeamID
+    INNER JOIN AppUser au
+        ON au.AppUserID = @NFLAdminID;
+END
+
+GO
+
+
+
+create or alter procedure procGetAllChangesMadeBySpecifiedAdmin
+
+(
+
+    @NFLAdminID INT
+
+)
+
+as
+
+begin
+
+    select ACT.ChangeDateTime, ACT.ChangeType, ACT.ChangeDescription,
+
+    G.GameRound, G.GameDate, G.GameStartTime,
+
+    HT.TeamName as HomeTeam, AT.TeamName as AwayTeam, S.StadiumName
+
+    from AdminChangesTracker ACT inner join Game G
+
+        on ACT.GameID = G.GameID
+
+        inner join Team HT
+
+        on G.HomeTeamID = HT.TeamID
+
+        inner join Team AT
+
+        on G.AwayTeamID = AT.TeamID
+
+        inner join Stadium S
+
+        on G.StadiumID = S.StadiumID
+
+    where ACT.NFLAdminID = @NFLAdminID
+
+    order by ACT.ChangeDateTime desc;
+
+end
+
+
+-- execute procGetAllChangesMadeBySpecifiedAdmin @NFLAdminID = 5; -- Bill Belichick

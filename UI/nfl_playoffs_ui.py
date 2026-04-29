@@ -3,6 +3,7 @@ from get_teams_by_conference_division_ui import get_teams_by_conference_division
 from get_teams_in_same_conference_division_as_specified_team_ui import get_teams_in_same_conference_division_as_specified_team_ui
 from validate_user_ui import validate_user_ui
 from get_teams_for_specified_fan_ui import get_teams_for_specified_fan_ui
+from schedule_game_ui import schedule_game_ui
 
 
 
@@ -25,7 +26,8 @@ api_endpoint = st.sidebar.selectbox(
         "Get Teams by Conference and Division",
         "Get Teams in Same Conference and Division",
         "Validate User Login",
-        "Get Teams for Specified Fan"
+        "Get Teams for Specified Fan",
+        "Schedule a Game"
     ]
 )
 
@@ -40,3 +42,7 @@ elif api_endpoint == "Validate User Login":
 
 elif api_endpoint == "Get Teams for Specified Fan":
     get_teams_for_specified_fan_ui() 
+
+
+elif api_endpoint == "Schedule a Game":
+    schedule_game_ui()
