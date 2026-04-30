@@ -44,7 +44,7 @@ def schedule_game_ui():
 
     if st.button("Schedule Game"):
         result = post_data(
-            "schedule_game/",
+            "schedule_game",
             {
                 "home_team_id": home_team_id,
                 "away_team_id": away_team_id,
