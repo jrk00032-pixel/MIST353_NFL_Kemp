@@ -6,6 +6,15 @@ from get_teams_for_specified_fan_ui import get_teams_for_specified_fan_ui
 from schedule_game_ui import schedule_game_ui
 
 
+# Initialize session state variables if they don't exist
+if 'app_user_id' not in st.session_state:
+    st.session_state.app_user_id = None
+
+if 'app_user_fullname' not in st.session_state:
+    st.session_state.app_user_fullname = None
+
+if 'app_user_role' not in st.session_state:
+    st.session_state.app_user_role = None
 
 st.set_page_config(layout="centered")
 
@@ -45,4 +54,9 @@ elif api_endpoint == "Get Teams for Specified Fan":
 
 
 elif api_endpoint == "Schedule a Game":
-    schedule_game_ui()
+    if "app_user_id" not in st.session_state:
+        st.warning("Please log in to access the Schedule a Game functionality.")
+    elif st.session_state.app_user_role != "NFLAdmin":
+        st.warning("Only NFL admins can schedule games.")
+    else:
+        schedule_game_ui()

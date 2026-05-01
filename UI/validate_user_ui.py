@@ -1,25 +1,46 @@
 import streamlit as st
 from fetch_data import fetch_data
 
+# Initialize session state variables if they don't exist
+if 'app_user_id' not in st.session_state:
+    st.session_state.app_user_id = None
+
+if 'app_user_fullname' not in st.session_state:
+    st.session_state.app_user_fullname = None
+
+if 'app_user_role' not in st.session_state:
+    st.session_state.app_user_role = None
+
 def validate_user_ui():
-    st.header("Validate User Login")
-
-    email = st.text_input("Email")
-    password_hash = st.text_input("Password Hash", type="password")
-
-    if st.button("Login"):
-        input_parameters = {
-            "email": email,
-            "password_hash": password_hash
-        }
-
-        df = fetch_data("validate_user/", input_parameters)
-
-        if df is not None and not df.empty:
-            st.session_state.app_user_id = df.iloc[0]["AppUserID"]
-            st.session_state.app_user_fullname = df.iloc[0]["FullName"]
-            st.session_state.app_user_role = df.iloc[0]["UserRole"]
-
-            st.success(f"Welcome, {st.session_state.app_user_fullname}!")
+    
+    st.header("Validate User")
+    
+    email = st.text_input("Enter Email")
+    password_hash = st.text_input("Enter Password", type="password")
+    
+    if st.button("Validate User"):
+        input_params = {}
+        if not email.strip():
+            st.error("Email is required.")
         else:
-            st.error("Invalid login.")
+            input_params["email"] = email.strip()
+            if not password_hash.strip():
+                st.error("Password is required.")
+            else:
+                input_params["password_hash"] = password_hash.strip()
+                
+                # Define fetch_data function and call it with input_params
+                df = fetch_data("validate_user/", input_params)
+                
+                if df is not None and not df.empty:
+                    st.success(f"User {email} is valid!")
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+                    
+                    # FIXED: Capital 'N' in FullName
+                    st.session_state.app_user_id = df["AppUserID"].values[0]
+                    st.session_state.app_user_fullname = df["FullName"].values[0]  # ← CHANGED HERE
+                    st.session_state.app_user_role = df["UserRole"].values[0]
+                    
+                    st.success(f"Logged in as {st.session_state.app_user_fullname} ({st.session_state.app_user_role})")
+                else:
+                    st.info(f"User {email} is not valid. Please check the inputs and try again.")

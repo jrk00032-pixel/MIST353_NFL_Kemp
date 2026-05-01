@@ -254,7 +254,7 @@ execute procScheduleGame
     select * from Game;
 
 
-
+print(df.columns)  # or st.write(df.columns)
 
 
 

@@ -1,66 +1,75 @@
 import streamlit as st
-from fetch_data import post_data
+from fetch_data import post_data, get_data
+from datetime import date, time
+
+
+if "app_user_id" not in st.session_state:
+    st.session_state.app_user_id = None
+
+if "app_user_fullname" not in st.session_state:
+    st.session_state.app_user_fullname = None
+
+if "app_user_role" not in st.session_state:
+    st.session_state.app_user_role = None
 
 
 def schedule_game_ui():
+    if st.session_state.app_user_role is None:
+        st.warning("Please log in first using the Validate User Login option.")
+        return
+
+    if st.session_state.app_user_role != "NFLAdmin":
+        st.error("Only NFLAdmin users can schedule games.")
+        st.info(f"Your current role: {st.session_state.app_user_role}")
+        return
+
     st.header("Schedule a Game")
 
-    home_team_id = st.number_input(
-        "Enter Home Team ID:",
-        min_value=1,
-        step=1
-    )
+    teams_df = get_data("get_all_teams")
+    stadiums_df = get_data("get_all_stadiums")
 
-    away_team_id = st.number_input(
-        "Enter Away Team ID:",
-        min_value=1,
-        step=1
-    )
+    if teams_df.empty:
+        st.error("No teams found.")
+        return
 
-    game_round = st.selectbox(
-        "Select Game Round:",
-        ["Wild Card", "Divisional", "Conference Championship", "Super Bowl"]
-    )
+    if stadiums_df.empty:
+        st.error("No stadiums found.")
+        return
 
-    game_date = st.date_input("Select Game Date:")
+    game_rounds = ["Wild Card", "Divisional", "Conference", "Super Bowl"]
 
-    game_time = st.text_input(
-        "Enter Game Time:",
-        value="15:30:00",
-        help="Format: HH:MM:SS (example: 15:30:00)"
-    )
+    team_options = dict(zip(teams_df["TeamName"], teams_df["TeamID"]))
+    stadium_options = dict(zip(stadiums_df["StadiumName"], stadiums_df["StadiumID"]))
 
-    stadium_id = st.number_input(
-        "Enter Stadium ID:",
-        min_value=1,
-        step=1
-    )
+    home_team_name = st.selectbox("Select Home Team", options=list(team_options.keys()))
+    away_team_name = st.selectbox("Select Away Team", options=list(team_options.keys()))
+    stadium_name = st.selectbox("Select Stadium", options=list(stadium_options.keys()))
+    game_round = st.selectbox("Select Game Round", options=game_rounds)
 
-    nfl_admin_id = st.number_input(
-        "Enter NFL Admin ID:",
-        min_value=1,
-        step=1
-    )
+    game_date = st.date_input("Select Game Date", min_value=date.today())
+    game_start_time = st.time_input("Select Game Start Time", value=time(13, 0))
 
     if st.button("Schedule Game"):
-        result = post_data(
-            "schedule_game",
-            {
-                "home_team_id": home_team_id,
-                "away_team_id": away_team_id,
-                "game_round": game_round,
-                "game_date": str(game_date),
-                "game_time": game_time,
-                "stadium_id": stadium_id,
-                "nfl_admin_id": nfl_admin_id
-            },
-            method="POST"
-        )
+        if home_team_name == away_team_name:
+            st.warning("Home team and away team cannot be the same.")
+            return
 
-        if "status_message" in result:
-            if "successfully" in result["status_message"]:
-                st.success(result["status_message"])
+        parameters = {
+            "home_team_id": int(team_options[home_team_name]),
+            "away_team_id": int(team_options[away_team_name]),
+            "game_round": game_round,
+            "game_date": game_date.isoformat(),
+            "game_start_time": game_start_time.isoformat(),
+            "stadium_id": int(stadium_options[stadium_name]),
+            "nfl_admin_id": int(st.session_state.app_user_id)
+        }
+
+        response = post_data("schedule_game", parameters)
+
+        if response and "status_message" in response:
+            if "Error" in response["status_message"]:
+                st.error(response["status_message"])
             else:
-                st.error(result["status_message"])
+                st.success(response["status_message"])
         else:
-            st.write(result)
+            st.error("An error occurred while scheduling the game.")

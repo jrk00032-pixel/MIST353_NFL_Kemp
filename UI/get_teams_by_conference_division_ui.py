@@ -1,5 +1,5 @@
 import streamlit as st
-from fetch_data import fetch_data
+from fetch_data import get_data
 
 def get_teams_by_conference_division_ui():
     st.header("Get Teams by Conference and Division")
@@ -13,7 +13,7 @@ def get_teams_by_conference_division_ui():
             "division": division
         }
 
-        df = fetch_data("get_teams_by_conference_division/", input_parameters)
+        df = get_data("get_teams_by_conference_division/", input_parameters)
 
         if df is not None and not df.empty:
             st.dataframe(df, use_container_width=True, hide_index=True)
